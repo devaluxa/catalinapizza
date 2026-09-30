@@ -1,0 +1,65 @@
+name: Build and deploy Catalina Pizza
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalina-pizza-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SERVER_IP: 148.116.84.122
+      SSH_PORT: 22
+      SSH_PRIVATE_KEY: ${{ secrets.CLOUDPANEL_SSH_PRIVATE_KEY }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
+
+      - name: Build static export
+        run: npm run build
+
+      - name: Verify static export
+        run: npm run verify:export
+
+      - name: Require deployment key
+        run: test -n "$SSH_PRIVATE_KEY"
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/catalina_deploy
+          chmod 600 ~/.ssh/catalina_deploy
+          ssh-keyscan -p "$SSH_PORT" -H "$SERVER_IP" >> ~/.ssh/known_hosts
+
+      - name: Deploy to CloudPanel
+        run: |
+          rsync -az --delete \
+            --exclude='.well-known/' \
+            --exclude='.user.ini' \
+            -e "ssh -p $SSH_PORT -i ~/.ssh/catalina_deploy" \
+            out/ "catalinapizzaandchicken@${SERVER_IP}:/home/catalinapizzaandchicken/htdocs/catalinapizzaandchicken.com/"

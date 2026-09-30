@@ -1,31 +1,31 @@
-# Future CloudPanel deployment (approval required)
+# CloudPanel deployment
 
-This repository is prepared for the same static-export model as the other
-restaurant sites, but no deployment workflow or credential is active.
+Production is deployed automatically from the GitHub `main` branch by
+`.github/workflows/deploy.yml`.
 
-## Build artifact
+## Production target
 
-Run `npm ci`, `npm run typecheck`, `npm run build`, then
-`node scripts/verify-export.mjs out`. Upload the **contents of `out/`** to the
-confirmed CloudPanel document root. Do not upload the `out` directory as an
-extra nested folder.
+- Domain: `https://catalinapizzaandchicken.com/`
+- CloudPanel host: `148.116.84.122`
+- SSH port: `22`
+- Site user: `catalinapizzaandchicken`
+- Document root: `/home/catalinapizzaandchicken/htdocs/catalinapizzaandchicken.com/`
 
-The intended production domain is `catalinapizzaandchicken.com`. The exact
-CloudPanel site user, document root, SSH host/port, and GitHub deployment key
-must be confirmed before any deployment automation is created.
+The workflow builds the Next.js static export and synchronizes the **contents of
+`out/`** to the document root. It preserves `.well-known/` and `.user.ini` while
+removing obsolete site files.
 
-## Approval-gated launch checklist
+## Required repository secret
 
-- Confirm the CloudPanel site user, production document root, host, and SSH port.
-- Back up the current WordPress files and database and document rollback steps.
-- Confirm whether legacy WordPress URLs need redirects.
-- Connect and test a Catalina-owned static form endpoint.
-- Verify every GloriaFood button and the direct fallback on the production origin.
-- Verify phone, directions, Facebook, map, analytics, and review widget.
-- Build and validate `out/`; sync its contents without nesting `out/`.
-- Confirm SSL, apex/`www` behavior, and DNS only with separate approval.
-- Keep a rollback copy until ordering and contact paths pass live-domain checks.
-- Enable deployment automation only after explicit launch approval.
+- `CLOUDPANEL_SSH_PRIVATE_KEY`: the Catalina-specific deployment key whose
+  public key is authorized for the CloudPanel site user.
 
-Nothing in this document is an authorization to deploy or change DNS,
-Cloudflare, SSL, Nginx, WordPress, or CloudPanel.
+## Release process
+
+1. Commit the approved change.
+2. Push to `main`.
+3. Confirm the `Build and deploy Catalina Pizza` workflow succeeds.
+4. Verify the live domain, ordering widget, and key contact links.
+
+Use the workflow's manual dispatch button when the current `main` commit needs
+to be redeployed without a source change.

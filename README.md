@@ -39,8 +39,10 @@ The GloriaFood widget script is loaded once. All ordering buttons share the
 same verified company and restaurant IDs, and the direct OrderMenu URL remains
 available as a fallback.
 
-## Repository safety
+## Production deployment
 
-`.github/workflows/ci.yml` only installs, type-checks, builds, and verifies the
-static export. It does not contain hosting credentials or deployment steps.
-CloudPanel launch remains approval-gated; see `docs/DEPLOYMENT.md`.
+Every push to `main` runs `.github/workflows/deploy.yml`. The workflow installs
+dependencies, audits and type-checks the project, builds and verifies the static
+export, then synchronizes the contents of `out/` to the Catalina CloudPanel
+document root. The SSH credential is stored only as an encrypted GitHub Actions
+repository secret.
