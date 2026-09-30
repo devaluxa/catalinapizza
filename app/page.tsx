@@ -2,6 +2,7 @@ import Image from "next/image";
 import Script from "next/script";
 import ContactForm from "../components/ContactForm";
 import OrderButton from "../components/OrderButton";
+import SiteHeader from "../components/SiteHeader";
 import {
   burgers,
   business,
@@ -64,19 +65,7 @@ export default function Home() {
       <script dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} type="application/ld+json" />
 
       <div className="announcement">ENJOY PICKUP AND DELIVERY WITH OUR NEW ONLINE ORDERING WEBSITE</div>
-      <header className="site-header">
-        <div className="header-inner">
-          <a aria-label="Catalina Pizza & Chicken home" href="#home">
-            <Image className="brand-logo" alt="Catalina Pizza & Chicken" height={201} priority src="/images/branding/catalina-logo.png" width={252} />
-          </a>
-          <nav aria-label="Primary navigation">
-            <a href="#menu">Menu</a>
-            <a href="#specials">Specials</a>
-            <a href="#location">Location</a>
-          </nav>
-          <OrderButton>See menu &amp; order</OrderButton>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main id="main-content">
         <section className="hero" id="home">
